@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""补跑有限尺寸标度：N=2000 和 N=4000（复用已有 N=250/500/1000 数据）。
-
-与 exp_fss 完全一致的参数：固定"较快"共识形成 speed_params(0.4, 10)，
-扫描 I2 ∈ {0.1,...,0.9}，num_runs=40。
-"""
 import os, sys, time
 import numpy as np
 import pandas as pd
