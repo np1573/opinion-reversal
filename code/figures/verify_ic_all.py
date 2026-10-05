@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-"""补跑 N=250/500/4000 的临界点 x 200 MC，得到准确的 I_c（N=1000/2000 已用 200 MC 验证）。"""
 import os, sys, time
 import numpy as np
 
