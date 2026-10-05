@@ -1,15 +1,4 @@
 # -*- coding: utf-8 -*-
-"""CSF Fig.3：消融对比（full vs ablated）正式 4 面板图，2026-09-24。
-
-重跑 full（alpha=60）与 ablated（alpha=0）各 100 MC（N=500），绘制：
-  (a) full-model mean opinion（单蓝曲线，无图例）
-  (b) ablated-model mean opinion（单橙曲线，无图例）
-  (c) positive-support fraction（full 蓝 vs ablated 橙，有图例）
-  (d) system-level reversal probability（full vs ablated 柱状图）
-a/b 与 Fig.2 一致为单曲线无图例；c 因双线对比保留图例；d 为柱状对比。
-输出：合并图 attachments/Fig3.png（含 (a)(b)(c)(d) 图内标签，供 docx）+
-子图 subfigs/Fig3_a/b/c/d.png（无图内标签，LaTeX subfigure 提供编号，供 PDF）。
-"""
 import os
 import sys
 import time
