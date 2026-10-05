@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""CSF Fig.10：两个 Type A 案例时间线示意（v6，2026-09-26）。
-
-v6（修复"态度曲线断开"）：
-  (a) Liu 案例改用**单轴断裂轴**：整条态度曲线画在同一个 axes 上、连续不断，
-      时间轴在 Sep 3 → Dec 21 之间用底边斜线断裂标记表示"时间跳跃"（broken axis），
-      曲线跨过断裂区仍保持连续（仅时间刻度跳过，曲线不打断）。
-  (b) Covington 案例维持单轴连续时间轴。
-  两个子图整体拉长（合并图 16×7.4；子图 a 9.2×4.4 / b 7.2×4.4）。
-
-内容与正文案例段一致（qualitative schematics，非真实数据）。
-输出：attachments/Fig10.png（上下合并）+ subfigs/Fig10_a.png / Fig10_b.png。
-"""
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
