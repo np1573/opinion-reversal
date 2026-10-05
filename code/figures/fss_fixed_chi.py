@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""任务 2：固定 χ_pre 的严格 finite-size scaling。
-
-原 fss 用 speed_params(0.4,10) 固定参数，导致不同 N 的 χ_pre 漂移（0.83→0.94）。
-本脚本对每个 N 先校准共识形成参数 T（保持 p1*T=4），使 χ_pre 对齐到目标值
-（约 0.86），再扫描 I2 测 I_c，从而隔离出纯的有限尺寸效应。
-"""
 import os, sys, time
 import numpy as np
 import pandas as pd
