@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""CSF 新增 Fig.1：概念机制图（意见三十一）。
-
-Consensus formation (intensity f_i + speed v_i)
-  -> Endogenous susceptibility chi_pre (path-dependent latent state)
-  -> Response to counter-information (high-chi reversal vs low-chi no reversal)
-底部强调：same consensus != same susceptibility。
-风格与全文一致：Times New Roman、无标题。
-"""
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
