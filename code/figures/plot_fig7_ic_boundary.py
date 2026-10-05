@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""CSF Fig.7（旧 Fig.5）响应面：恢复 Physica-A 旧版样式（2026-09-24 用户要求改回）。
-
-样式（与旧版 6N4XE8KP.png 一致）：
-  左 panel：P_rev 热图 + 单条 P_rev=0.5 黑色等值线（clabel 内嵌标注），
-            x 轴 "χ_pre (consensus-matched, different speed)"
-  右 panel：x_final 热图 + x_final=0 黑色等值线（clabel 内嵌标注），x 轴 "χ_pre"
-  不叠加 I_c 边界曲线，无 0.1/0.8 虚线（I_c 数值仅在正文中给出）。
-数据：数据/补充实验/phase10_*.npy，不重跑仿真。
-
-输出：合并图 Fig7.png（含 (a)(b) 图内标签，供 docx）+ 子图 subfigs/Fig7_a.png /
-subfigs/Fig7_b.png（无图内标签，LaTeX subfigure 提供编号，供 PDF）。
-"""
 import os
 import numpy as np
 import matplotlib
