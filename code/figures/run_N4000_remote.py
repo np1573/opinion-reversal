@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-"""远程跑 N=4000 的 200 次 MC（I2=0.3/0.4/0.5），内联 speed_params 避免 import 整个 supplement_experiments。"""
 import json
 import time
 import numpy as np
