@@ -1,0 +1,114 @@
+{
+  "S1_f": {
+    "alpha_cal": 0.2608828368828316,
+    "calib_history": [
+      0.0878,
+      0.1001
+    ],
+    "slow": {
+      "P_rev": 0.06,
+      "chi_pre": 0.10012643668379731,
+      "x_pre": -0.46882910938854955
+    },
+    "fast": {
+      "P_rev": 0.01,
+      "chi_pre": 0.10427367105387714,
+      "x_pre": -0.49103479312628623
+    },
+    "info1_flip_stats": {
+      "mean_flips_per_run": 5.96,
+      "mean_flips_per_step": 0.149,
+      "first_step_mean": 0.0,
+      "max_per_run": 17.0
+    }
+  },
+  "S2_v": {
+    "alpha_cal": 31.300948922640877,
+    "calib_history": [
+      0.1046,
+      0.1011
+    ],
+    "slow": {
+      "P_rev": 0.0,
+      "chi_pre": 0.1010962182415262,
+      "x_pre": -0.528793520765305
+    },
+    "fast": {
+      "P_rev": 0.87,
+      "chi_pre": 1.2154918143871465,
+      "x_pre": -0.557116952981796
+    },
+    "info1_flip_stats": {
+      "mean_flips_per_run": 113.38,
+      "mean_flips_per_step": 2.8345,
+      "first_step_mean": 0.0,
+      "max_per_run": 168.0
+    }
+  },
+  "S3_vf_abs": {
+    "alpha_cal": 59.62859035373707,
+    "calib_history": [
+      0.0999
+    ],
+    "slow": {
+      "P_rev": 0.01,
+      "chi_pre": 0.09994562679675066,
+      "x_pre": -0.4906546096248842
+    },
+    "fast": {
+      "P_rev": 0.92,
+      "chi_pre": 1.0958867750844734,
+      "x_pre": -0.506225913212249
+    },
+    "info1_flip_stats": {
+      "mean_flips_per_run": 40.71,
+      "mean_flips_per_step": 1.01775,
+      "first_step_mean": 0.0,
+      "max_per_run": 89.0
+    }
+  },
+  "S3_vf_pos": {
+    "alpha_cal": 70.73132634850987,
+    "calib_history": [
+      0.1003
+    ],
+    "slow": {
+      "P_rev": 0.01,
+      "chi_pre": 0.10033479002919442,
+      "x_pre": -0.4897507304831489
+    },
+    "fast": {
+      "P_rev": 0.92,
+      "chi_pre": 1.1734701371180427,
+      "x_pre": -0.5082302851546953
+    },
+    "info1_flip_stats": {
+      "mean_flips_per_run": 36.66,
+      "mean_flips_per_step": 0.9165,
+      "first_step_mean": 0.0,
+      "max_per_run": 84.0
+    }
+  },
+  "S3_vf_net": {
+    "alpha_cal": 85.73436783520366,
+    "calib_history": [
+      0.1021
+    ],
+    "slow": {
+      "P_rev": 0.02,
+      "chi_pre": 0.10207946755835709,
+      "x_pre": -0.48889956708860394
+    },
+    "fast": {
+      "P_rev": 0.91,
+      "chi_pre": 1.2779021477705255,
+      "x_pre": -0.5107186784543413
+    },
+    "info1_flip_stats": {
+      "mean_flips_per_run": 30.98,
+      "mean_flips_per_step": 0.7745,
+      "first_step_mean": 0.0,
+      "max_per_run": 78.0
+    }
+  }
+}

@@ -1,0 +1,221 @@
+
+
+import os
+import networkx as nx
+import numpy as np
+import pandas as pd
+import random
+import warnings
+import multiprocessing
+from multiprocessing import Pool, cpu_count
+
+multiprocessing.set_start_method('fork', force=True)
+warnings.filterwarnings("ignore")
+
+def initialize_network(network_formation, num_nodes, tau, opinion_init_mode='random'):
+    if network_formation[0] == 'BA':
+        G = nx.barabasi_albert_graph(num_nodes, network_formation[1])
+    elif network_formation[0] == 'ER':
+        G = nx.erdos_renyi_graph(num_nodes, network_formation[1])
+    elif network_formation[0] == 'WS':
+        G = nx.watts_strogatz_graph(num_nodes, network_formation[1][0], network_formation[1][1])
+
+    if opinion_init_mode == 'random':
+        opinions = {i: random.uniform(-1, 1) for i in G.nodes()}
+    else:
+        opinions = {i: 0.0 for i in G.nodes()}
+    nx.set_node_attributes(G, opinions, 'x')
+
+    nx.set_node_attributes(G, 0.0, 'S')
+    nx.set_node_attributes(G, 0.0, 'R')
+    nx.set_node_attributes(G, {i: [0] * tau for i in G.nodes()}, 'consensus_history')
+    nx.set_node_attributes(G, 0, 'info')
+    nx.set_node_attributes(G, 0, 'reversal')
+    nx.set_node_attributes(G, 0, 'sigma')
+    return G
+
+def update_actions_sgn(G):
+    for i in G.nodes():
+        G.nodes[i]['sigma'] = 1 if G.nodes[i]['x'] >= 0 else -1
+
+def set_mu(G, mu):
+    if mu == 'Social_Impact':
+        deg = [len(list(G.neighbors(i))) for i in G.nodes()]
+        k_min, k_max = min(deg), max(deg)
+        if k_max == k_min:
+            mu_dict = {i: 0.5 for i in G.nodes()}
+        else:
+            mu_dict = {i: 0.5 * (1 + (-deg[i] + k_min) / (k_max - k_min)) for i in G.nodes()}
+    else:
+        mu_dict = {i: mu for i in G.nodes()}
+    nx.set_node_attributes(G, mu_dict, 'mu')
+
+def update_skepticism(G, alpha, tau):
+    for i in G.nodes():
+        neighbors = list(G.neighbors(i))
+        if not neighbors:
+            G.nodes[i]['S'], G.nodes[i]['R'] = 0, 0.5
+            continue
+
+        consistent_sum = sum(abs(G.nodes[j]['x']) for j in neighbors
+                             if G.nodes[j]['sigma'] == G.nodes[i]['sigma'])
+        consistent_cnt = sum(1 for j in neighbors
+                             if G.nodes[j]['sigma'] == G.nodes[i]['sigma'])
+
+        f_i = consistent_sum / len(neighbors) if consistent_cnt > 0 else 0
+
+        G.nodes[i]['consensus_history'].append(f_i)
+        if len(G.nodes[i]['consensus_history']) > tau + 1:
+            G.nodes[i]['consensus_history'].pop(0)
+
+        if len(G.nodes[i]['consensus_history']) > 1:
+            speeds = np.abs(np.diff(G.nodes[i]['consensus_history']))
+            v_i = np.mean(speeds[-tau:]) if len(speeds) > 0 else 0.0
+        else:
+            v_i = 0.0
+
+        s_i = alpha * np.log(1 + v_i * f_i + 1e-8)
+        G.nodes[i]['S'], G.nodes[i]['R'] = s_i, np.tanh(s_i)
+
+def interaction_step(G, mu, update_actions_func):
+    new_opinions = {}
+    for i in G.nodes():
+        neighbors = list(G.neighbors(i))
+        if not neighbors:
+            new_opinions[i] = G.nodes[i]['x']
+            continue
+        weighted_sum = sum(G.nodes[j]['x'] * len(list(G.neighbors(j))) for j in neighbors)
+        total_weight = sum(len(list(G.neighbors(j))) for j in neighbors)
+        avg = weighted_sum / total_weight if total_weight > 0 else 0
+        new_opinions[i] = np.clip(G.nodes[i]['x'] + (avg - G.nodes[i]['x']) * G.nodes[i]['mu'], -1, 1)
+
+    for i, val in new_opinions.items():
+        G.nodes[i]['x'] = val
+    update_actions_func(G)
+
+def inject_information(G, info_value, reception_prob, update_actions_func):
+    info_sign = np.sign(info_value)
+    for i in G.nodes():
+        if random.random() < reception_prob:
+            x_i = G.nodes[i]['x']
+
+            if info_value * x_i < 0 and random.random() < G.nodes[i]['R']:
+                G.nodes[i]['x'] = -x_i
+                G.nodes[i]['reversal'] = 1
+                x_i = G.nodes[i]['x']
+
+            update = abs(info_value) * (info_sign - x_i) / 2
+            G.nodes[i]['x'] = np.clip(x_i + update, -1, 1)
+    update_actions_func(G)
+
+def run_single_simulation(params):
+    seed = params.get('seed', 0)
+    np.random.seed(seed)
+    random.seed(seed)
+
+    G = initialize_network(params['network_formation'], params['num_nodes'],
+                           params['tau'], params.get('opinion_init_mode', 'random'))
+    set_mu(G, params['mu'])
+    update_actions = update_actions_sgn
+    update_actions(G)
+
+    avg_x, avg_sigma, avg_S, avg_R = [], [], [], []
+
+    def record():
+        xs = [G.nodes[i]['x'] for i in G.nodes()]
+        ss = [G.nodes[i]['sigma'] for i in G.nodes()]
+        Ss = [G.nodes[i]['S'] for i in G.nodes()]
+        Rs = [G.nodes[i]['R'] for i in G.nodes()]
+        avg_x.append(np.mean(xs))
+        avg_sigma.append((1 + np.mean(ss)) / 2)
+        avg_S.append(np.mean(Ss))
+        avg_R.append(np.mean(Rs))
+
+    record()
+
+    for _ in range(params['pre_info_steps']):
+        interaction_step(G, params['mu'], update_actions)
+        update_skepticism(G, params['alpha'], params['tau'])
+        record()
+
+    info1_decay = params.get('info1_decay', True)
+    for step in range(params['info1_duration']):
+        if info1_decay:
+            prob = params['info1_reception_prob'] * (params['info1_duration'] - step) / params['info1_duration']
+        else:
+            prob = params['info1_reception_prob']
+        inject_information(G, params['info1_value'], prob, update_actions)
+        interaction_step(G, params['mu'], update_actions)
+        update_skepticism(G, params['alpha'], params['tau'])
+        record()
+
+    for node in G.nodes():
+        G.nodes[node]['reversal'] = 0
+
+    for _ in range(params['post_info1_steps']):
+        interaction_step(G, params['mu'], update_actions)
+        update_skepticism(G, params['alpha'], params['tau'])
+        record()
+
+    t_pre = len(avg_x) - 1
+    S_pre = avg_S[t_pre]
+    R_pre = avg_R[t_pre]
+    x_pre = avg_x[t_pre]
+    sigma_pre = avg_sigma[t_pre]
+
+    info2_decay = params.get('info2_decay', True)
+    for step in range(params['info2_duration']):
+        if info2_decay:
+            prob = params['info2_reception_prob'] * (params['info2_duration'] - step) / params['info2_duration']
+        else:
+            prob = params['info2_reception_prob']
+        inject_information(G, params['info2_value'], prob, update_actions)
+        interaction_step(G, params['mu'], update_actions)
+        update_skepticism(G, params['alpha'], params['tau'])
+        record()
+
+    for _ in range(params['post_info2_steps']):
+        interaction_step(G, params['mu'], update_actions)
+        update_skepticism(G, params['alpha'], params['tau'])
+        record()
+
+    x_final = avg_x[-1]
+    sigma_final = avg_sigma[-1]
+
+    return {
+        'avg_x': avg_x, 'avg_sigma': avg_sigma, 'avg_S': avg_S, 'avg_R': avg_R,
+        'S_pre': S_pre, 'R_pre': R_pre, 'x_pre': x_pre, 'sigma_pre': sigma_pre,
+        'x_final': x_final, 'sigma_final': sigma_final,
+    }
+
+def _worker(args):
+    run_id, params = args
+    p = params.copy()
+    p['seed'] = run_id
+    return run_id, run_single_simulation(p)
+
+def monte_carlo_experiment(params, num_runs=100, n_workers=None):
+    if n_workers is None:
+        n_workers = min(cpu_count(), 10)
+    args_list = [(run, params) for run in range(num_runs)]
+    with Pool(processes=n_workers) as pool:
+        sim_results = pool.map(_worker, args_list)
+    sim_results.sort(key=lambda x: x[0])
+
+    results = {'avg_x': [], 'avg_sigma': [], 'avg_S': [], 'avg_R': [],
+               'S_pre': [], 'R_pre': [], 'x_pre': [], 'sigma_pre': [],
+               'x_final': [], 'sigma_final': []}
+    for run, sim in sim_results:
+        for k in results:
+            results[k].append(sim[k])
+    return results
+
+def compute_statistics(df_key):
+    col_means = df_key.mean()
+    col_std = df_key.std()
+    col_ci = 1.96 * col_std / np.sqrt(len(df_key))
+    return pd.DataFrame({'mean': col_means, 'std': col_std, 'ci': col_ci})
+
+def reversal_probability(results, threshold=0.0):
+    x_final = np.array(results['x_final'])
+    return float(np.mean(x_final > threshold))

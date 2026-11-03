@@ -1,0 +1,153 @@
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
+plt.rcParams['font.family'] = 'Times New Roman'
+plt.rcParams['mathtext.fontset'] = 'stix'
+plt.rcParams['axes.unicode_minus'] = False
+
+IMG = '/Users/np/Desktop/小论文/重跑_正确语义版/图片/attachments'
+
+LINE = '#2E86AB'
+SHADE = '#F5DCC8'
+C_INFO = '#4A90C4'
+C_RAPID = '#D95F02'
+C_COUNTER = '#D62728'
+C_REV = '#009E73'
+
+ARROW_KW = dict(arrowstyle='-|>', mutation_scale=14, lw=1.5, shrinkA=2, shrinkB=1)
+
+def style_ax(ax):
+    ax.tick_params(axis='both', direction='in', labelsize=11)
+    ax.grid(alpha=0.22, linewidth=0.5)
+    for s in ('top', 'right'):
+        ax.spines[s].set_visible(False)
+
+def yfmt(v, _):
+    return {1: '+1', 0.5: '+0.5', 0: '0', -0.5: '−0.5', -1: '−1'}.get(v, str(v))
+
+def broken_axis(ax, xc, size=0.030):
+    ylim = ax.get_ylim()
+    xlim = ax.get_xlim()
+    y0 = ylim[0]
+    span_y = ylim[1] - ylim[0]
+    dy = span_y * size
+    slash_w = dy * 0.55
+    xl = xc - slash_w * 1.6
+    xr = xc + slash_w * 1.6
+
+    ax.spines['bottom'].set_visible(False)
+    ax.plot([xlim[0], xl - slash_w], [y0, y0], color='k', lw=0.8,
+            clip_on=False, zorder=6)
+    ax.plot([xr + slash_w, xlim[1]], [y0, y0], color='k', lw=0.8,
+            clip_on=False, zorder=6)
+
+    for x in (xl, xr):
+        ax.plot([x - slash_w, x + slash_w], [y0 - dy, y0 + dy],
+                color='k', lw=1.2, clip_on=False, zorder=7)
+
+def phase_marker(ax, x0, x1, y, text, color, fontsize=10, fontweight='normal',
+                 text_dy=-0.05, va='top'):
+    ax.annotate('', xy=(x0, y), xytext=(x1, y),
+                arrowprops=dict(arrowstyle='<->', color=color, lw=1.6,
+                                shrinkA=0, shrinkB=0))
+    ax.text((x0 + x1) / 2, y + text_dy, text, ha='center', va=va,
+            fontsize=fontsize, color=color, fontweight=fontweight)
+
+def liu_case(ax):
+    xs = [0, 0.5, 1.0, 3.4, 3.7, 4.0]
+    ys = [0, -0.55, -0.85, -0.72, 0.0, 0.30]
+    ax.set_xlim(-0.5, 4.55)
+    ax.set_ylim(-1.3, 1.35)
+    ax.axhline(0, color='k', lw=0.8, zorder=1)
+    ax.axvspan(0, 1, color=SHADE, alpha=0.55, lw=0, zorder=0)
+
+    ax.plot(xs, ys, color=LINE, lw=2.4, zorder=4, solid_joinstyle='round',
+            solid_capstyle='round')
+    ax.scatter(xs, ys, s=32, color=LINE, zorder=5, edgecolors='white', linewidths=0.5)
+
+    ax.axvline(3.4, color=C_COUNTER, ls='--', lw=1.8, zorder=3, ymax=0.83)
+
+    ax.set_xticks([0, 1.0, 3.4, 4.0])
+    ax.set_xticklabels(['Sep 2', 'Sep 3', 'Dec 21', 'Dec 24'])
+    ax.yaxis.set_major_formatter(FuncFormatter(yfmt))
+    ax.set_ylabel('Opinion attitude\n(negative → positive)', fontsize=11)
+
+    broken_axis(ax, 2.2)
+
+    ax.annotate('Info 1: arrest exposed (Sep 2)\n→ over 6,000 reports by Sep 3',
+                xy=(0, 0.02), xytext=(-0.42, 0.62), ha='left', va='center',
+                fontsize=10, color=C_INFO,
+                arrowprops=dict(ARROW_KW, color=C_INFO))
+
+    phase_marker(ax, 0.0, 1.0, -1.05, 'Rapid consensus\nformation',
+                 C_RAPID, text_dy=-0.05, va='top')
+
+    ax.annotate('Counter-info: prosecutors\ndecline to change (Dec 21)',
+                xy=(3.34, 0.62), xytext=(2.62, 0.95), ha='center', va='center',
+                fontsize=10, color=C_COUNTER,
+                arrowprops=dict(ARROW_KW, color=C_COUNTER))
+
+    phase_marker(ax, 3.4, 4.0, 0.55, 'Opinion reversal',
+                 C_REV, fontsize=10.5, fontweight='bold', text_dy=0.05, va='bottom')
+    style_ax(ax)
+
+def covington_case(ax):
+    xs = [0, 0.5, 1.0, 2.0, 2.5, 3.0]
+    ys = [0, -0.68, -0.85, -0.70, 0.15, 0.50]
+    ax.set_xlim(-0.6, 3.6)
+    ax.set_ylim(-1.3, 1.35)
+    ax.axhline(0, color='k', lw=0.8, zorder=1)
+    ax.axvspan(0, 1.0, color=SHADE, alpha=0.55, lw=0, zorder=0)
+    ax.plot(xs, ys, color=LINE, lw=2.4, zorder=4, solid_joinstyle='round',
+            solid_capstyle='round')
+    ax.scatter(xs, ys, s=32, color=LINE, zorder=5, edgecolors='white', linewidths=0.5)
+    ax.axvline(2.0, color=C_COUNTER, ls='--', lw=1.8, zorder=3, ymax=0.83)
+    ax.set_xticks([0, 1, 2, 3])
+    ax.set_xticklabels(['Jan 18', 'Jan 19', 'Jan 20', 'Jan 21'])
+    ax.yaxis.set_major_formatter(FuncFormatter(yfmt))
+    ax.set_ylabel('Opinion attitude\n(negative → positive)', fontsize=11)
+
+    ax.annotate('Info 1: short video spread (Jan 18)',
+                xy=(-0.02, 0.02), xytext=(-0.42, 0.60), ha='left', va='center',
+                fontsize=10, color=C_INFO,
+                arrowprops=dict(ARROW_KW, color=C_INFO))
+
+    phase_marker(ax, 0.0, 1.0, -1.05, 'Rapid negative judgment\n(fragmented information)',
+                 C_RAPID, text_dy=-0.05, va='top')
+
+    ax.annotate('Counter-info: full video and\nother angles (Jan 20)',
+                xy=(1.95, 0.62), xytext=(1.55, 0.95), ha='center', va='center',
+                fontsize=10, color=C_COUNTER,
+                arrowprops=dict(ARROW_KW, color=C_COUNTER))
+
+    phase_marker(ax, 2.0, 3.0, 0.75, 'Opinion reversal\n(critics apologized)',
+                 C_REV, fontsize=10.5, fontweight='bold', text_dy=0.05, va='bottom')
+    style_ax(ax)
+
+def main():
+
+    fig, axes = plt.subplots(2, 1, figsize=(16, 7.4), gridspec_kw=dict(hspace=0.30))
+    liu_case(axes[0])
+    covington_case(axes[1])
+    fig.savefig(f'{IMG}/Fig10.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
+
+    fa, axa = plt.subplots(figsize=(8.2, 4.4))
+    liu_case(axa)
+    fa.tight_layout()
+    fa.savefig(f'{IMG}/subfigs/Fig10_a.png', dpi=300, bbox_inches='tight',
+               facecolor='white')
+    plt.close(fa)
+    fb, axb = plt.subplots(figsize=(8.2, 4.4))
+    covington_case(axb)
+    fb.tight_layout()
+    fb.savefig(f'{IMG}/subfigs/Fig10_b.png', dpi=300, bbox_inches='tight',
+               facecolor='white')
+    plt.close(fb)
+    print('Fig10.png + Fig10_a/b.png 已生成（(a) 单轴断裂轴 + 曲线连续，整体拉长）')
+
+if __name__ == '__main__':
+    main()

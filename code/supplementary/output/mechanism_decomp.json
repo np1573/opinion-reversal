@@ -1,0 +1,26 @@
+{
+  "slow_full": {
+    "P_rev": 0.02,
+    "x_final": -0.137655752092639
+  },
+  "slow_internalize": {
+    "P_rev": 0.01,
+    "x_final": -0.15420005746399773
+  },
+  "slow_fliponly": {
+    "P_rev": 0.14,
+    "x_final": -0.09308708830207506
+  },
+  "fast_full": {
+    "P_rev": 0.91,
+    "x_final": 0.09920288868321984
+  },
+  "fast_internalize": {
+    "P_rev": 0.0,
+    "x_final": -0.1769243604706922
+  },
+  "fast_fliponly": {
+    "P_rev": 0.0,
+    "x_final": -0.16289688602612207
+  }
+}
